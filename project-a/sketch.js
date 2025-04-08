@@ -2,7 +2,7 @@
 Template for IMA's Creative Coding Lab 
 
 Project A: Generative Creatures
-CCLaboratories Biodiversity Atlas 
+CCLaboratories Biodiversity Atlas
 */
 
 
@@ -90,7 +90,7 @@ function draw() {
     drawAstronautMessage(); //text messages in the beginnign
 
     if (!isSkeleton &&   // checks if all spaceships have reached x = 700
-
+        //thank you Moon
         spaceshipX1 + frameCount * 1 >= 700 &&
         spaceshipX2 + frameCount * 0.7 >= 700 &&
         spaceshipX3 + frameCount * 0.8 >= 700) {
@@ -238,7 +238,7 @@ function drawAstronautMessage() {
     push();
     textAlign(CENTER, CENTER);
     textSize(20);
-    fill(255); // White text
+    fill(255);
 
     if (squaresEaten === 0 || squaresEaten === 1) {
         text("I'm hungry, hopeless, and lost...", x, y - 50); // first message
