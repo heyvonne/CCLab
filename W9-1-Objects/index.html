@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>[ Agario Dupe ]</title>
+
+    <!-- allow special characters, including Arabic, Chinese, Korean, Japanese, etc. -->
+    <meta charset="UTF-8">
+    <!-- link the style sheet -->
+    <link rel="stylesheet" type="text/css" href="style.css">
+    <!-- import p5.js library -->
+    <script src="https://cdn.jsdelivr.net/npm/p5@1.11.3/lib/p5.min.js"></script>
+    <script>
+        // prevent scrolling when spacebar and arrow keys are pressed.
+        window.addEventListener("keydown", function (e) { if ([32, 37, 38, 39, 40].indexOf(e.keyCode) > -1) { e.preventDefault(); } }, false);
+    </script>
+</head>
+
+<body>
+    <!-- title -->
+    <div id="title-wrapper">
+        <h1 class="headline black">[ project naame ]</h1>
+    </div>
+
+    <!-- main content -->
+    <div id="main-wrapper">
+        <div id="p5-canvas-container">
+            <!-- This is where your p5 sketch will be appended and appear! -->
+        </div>
+        <div class="two-columns">
+            <div class="left">
+                <h3 class="red">Scientific Name:</h3>
+                <p>Agario</p>
+
+                <h3 class="red">Discovered by / at:</h3>
+                <p>Yvonne, March 15, 2025</p>
+
+                <h3 class="green">Family:</h3>
+                <p>NASA launched Project A, sending three astronauts to explore a mysterious planet. But everything went
+                    wrong when Chris’ spaceship malfunctioned, ejecting him into deep space. He called for help, but his
+                    two teammates abandoned him to save themselves. Drifting alone, he found a strange, glowing
+                    substance floating in the void. Desperate, he consumed it—and felt his body begin to change. He was
+                    growing, evolving into something beyond human. Now, he had a choice: Consume all and let his old
+                    friends die, or stay silent, vanish into the void, and take the secret of his transformation with
+                    him. </p>
+            </div>
+            <div class="right">
+                <h3 class="green">Habitat:</h3>
+                <p>The Agario lives in the cold, dark emptiness of space, floating between the stars. It survives by
+                    eating anything it can find, growing bigger as it consumes energy and matter.</p>
+
+                <h3 class="green">Appearance:</h3>
+                <p>The creature was once human, but after consuming the glowing substance, the Agario's greed for more
+                    drives it to grow larger, changing color and size with each consumption. Intrigued by these changes,
+                    it becomes determined to keep searching for more substances to feed on.</p>
+
+                <h3 class="green">Key Characteristics:</h3>
+                <ul>
+                    <li>Floats in the stars</li>
+                    <li>Eats glowy substances/squares</li>
+                    <li>Is the feeling to kill or save his astronaut friends human or the creature's choice? Who knows.
+                    </li>
+                    <li>...</li>
+                </ul>
+            </div>
+        </div>
+        <div class="one-column">
+            <p>
+                <span class="yellow">What we know so far about [ Agario]?</span>
+                The agario was once human, but after eating a glowing substance in space, it starts to change. First,
+                its hands and arms grow, then its whole body gets bigger. Each time it eats, its color and size change,
+                and it becomes more driven to find more to consume. The creature’s hunger keeps growing, making it
+                unpredictable and dangerous.
+                <br>
+                <span class="yellow">Guidelines for human interaction with this creature</span> Humans should avoid
+                approaching or interacting with the creature, as it becomes more dangerous with each substance it
+                consumes. Keeping a safe distance and not offering any energy or matter is crucial to prevent triggering
+                its hunger and aggression.
+            </p>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <div id="footer" class="black">
+        <p>A CCLab project made by Yvonne in Spring 2025</p>
+    </div>
+
+    <!-- Home: Link back to the ATLAS page-->
+    <div id="home">
+        <a href="https://cclab.work/atlas">Back to the ATLAS</a>
+    </div>
+
+    <!-- Include your sketch.js file here -->
+    <script src="sketch.js" type="text/javascript"> </script>
+</body>
+
+</html>
