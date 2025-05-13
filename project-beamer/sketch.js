@@ -67,7 +67,7 @@ let currentAudio = null;
 let previousScene = -1;
 let notePickSound;
 let fadeOutSound;
-let monkeySound; // New: Sound played on Start
+let monkeySound;
 
 function preload() {
   imgMonkeyBody = loadImage('assets/monkey-body.png');
@@ -109,7 +109,7 @@ function preload() {
   imgQilin = loadImage('assets/Qilin.png');
   imgPaper = loadImage('assets/Paper.png');
 
-  // Load audio clips
+
   audioClips[0] = loadSound('assets/audio/jungle.mp3');      // Scene 0
   audioClips[1] = loadSound('assets/audio/sports-mode.mp3'); // Scene 1
   audioClips[2] = loadSound('assets/audio/exhaust.mp3');     // Scene 2
@@ -120,11 +120,11 @@ function preload() {
   audioClips[7] = loadSound('assets/audio/hawaii.mp3');     // Scene 7
   audioClips[8] = loadSound('assets/audio/heaven.mp3');     // Scene 8
   audioClips[9] = loadSound('assets/audio/monkey.mp3');      // Scene 9
-  audioClips[10] = loadSound('assets/audio/jungle.mp3');  // Scene 10 (end)
+  audioClips[10] = loadSound('assets/audio/jungle.mp3');  // scene 10
 
   notePickSound = loadSound('assets/audio/paper.mp3');
   fadeOutSound = loadSound('assets/audio/jungle.mp3');
-  monkeySound = loadSound('assets/audio/monkey.mp3'); // Played on Start
+  monkeySound = loadSound('assets/audio/monkey.mp3');
 
 }
 
@@ -190,7 +190,7 @@ function draw() {
     const rotationStep = 0.1;
     let leanInput = 0;
     if (keyCode === LEFT_ARROW) {
-      monkey.move(-40);
+      monkey.move(-10);
       angleFrontWheel += rotationStep;
       angleRightWheel += rotationStep;
       angleLeftWheel += rotationStep;
@@ -204,7 +204,7 @@ function draw() {
         portalShowTimer = portalShowDuration;
       }
     } else if (keyCode === RIGHT_ARROW) {
-      monkey.move(40);
+      monkey.move(10);
       angleFrontWheel += rotationStep;
       angleRightWheel += rotationStep;
       angleLeftWheel += rotationStep;
@@ -242,11 +242,11 @@ function draw() {
   // Scene 9 transition
   if (currentScene === 9) {
     if (!showItemsScreen && boxVisible) {
-      image(imgBox, 300, 200, 200, 200); // Draw big box
+      image(imgBox, 300, 200, 200, 200); // draw el box
     }
   }
 
-  // Show Items Screen
+  // show items
   if (showItemsScreen) {
     fill(0, 180);
     rect(0, 0, width, height);
@@ -274,7 +274,7 @@ function draw() {
     }
   }
 
-  // Handle fade from Scene 9 to Scene 10
+  // dandle fade from Scene 9 to Scene 10
   if (isFadingFromScene9 && currentScene === 9) {
     let elapsed = millis() - scene9FadeStartTime;
     if (elapsed < scene9FadeDelay) {
@@ -293,10 +293,10 @@ function draw() {
       if (alpha >= 255) {
         currentScene = 10;
         isFadingFromScene9 = false;
-        scene10StartTime = millis(); // Start Scene 10's fade timer
+        scene10StartTime = millis(); //scene 10 fade timer
         showPortal = false;
 
-        // Play end scene music (once)
+        // end credit music
         if (audioClips[10]) {
           if (currentAudio && currentAudio.isPlaying()) currentAudio.stop();
           currentAudio = audioClips[10];
@@ -306,7 +306,7 @@ function draw() {
     }
   }
 
-  // Fade transition after Scene 0
+  // fade transiton
   if (isFading) {
     countAfterFall++;
     let alpha = map(countAfterFall, 0, 240, 0, 255);
@@ -344,7 +344,7 @@ function draw() {
     text("Alex & Moon", 400, 160);
   }
 
-  // Auto-play scene audio
+  // autoplay
   if (currentScene !== previousScene) {
     previousScene = currentScene;
 
@@ -366,10 +366,10 @@ function keyPressed() {
   }
 }
 
-function startStory() {
+function startStory() { //start button music
   if (currentScene === 0 && !isFalling) {
     isFalling = true;
-    // Play monkey sound on Start
+
     if (monkeySound && !monkeySound.isPlaying()) {
       monkeySound.play();
     }
