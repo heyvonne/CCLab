@@ -1,187 +1,706 @@
-let wheel1;
-let wheel2;
-let wheel3;
-
 let charX = 215;
 let charY = 315;
+let currentScene = 0;
+let backgrounds = [];
+let sceneNames = ["Home", "Home", "NYUSH", "Quad", "The Bund", "White House", "Oval Office", "Banana Museum", "Banana Museum", "Storage Room", "Home"];
+let startBtn;
+let monkey;
+let monkey1;
+let fallingMonkey;
+let imgMonkeyBody, imgMonkeyBody1, imgMonkeyHead, imgMonkeyHead1, imgMonkeyLeftArm, imgMonkeyRightArm, imgMonkeyRightArm1;
+let imgMonkeyLeftLeg, imgMonkeyRightLeg, imgMonkeyTail;
+let imgTricycle, imgFrontWheel, imgRightWheel, imgLeftWheel;
+let imgMetal, imgPedal, imgBanana, imgMonkeyFalling, imgPortal;
+let imgBox;
+let angleFrontWheel = 0;
+let angleRightWheel = 0;
+let angleLeftWheel = 0;
+let angleMetal = 0;
+let anglePedal = 0;
+let notePicked = false;
+let bananaLeanAngle = 0;
+let bananaTargetLean = 0;
+let bananaLeanVelocity = 0;
+const bananaFriction = 0.9;
+const bananaSpringStrength = 0.05;
+let showPortal = false;
+let portalShowTimer = 0;
+const portalShowDuration = 120;
+let showMonkey = true;
+let isStarted = false;
+let isFalling = false;
+let isFading = false;
+let countAfterFall = 0;
+
+// Scene 9 items
+let showItemsScreen = false;
+let selectedItem = null;
+let boxVisible = true;
+
+// Scene 10 variables
+let imgKeyChain, imgIceCream, imgQilin, imgPaper;
+let itemSlotPositions = [
+  { x: 200, y: 200 },
+  { x: 300, y: 200 },
+  { x: 200, y: 350 },
+  { x: 300, y: 350 }
+];
+let pickableItemIndex = 3;
+let itemWidth = 100;
+let itemHeight = 160;
+
+// Scene 10 fade
+let scene10StartTime = 0;
+let isFadingFromScene10 = false;
+const scene10FadeDelay = 5000;
+const scene10FadeDuration = 5000;
+
+// Fade from Scene 9 to Scene 10
+let isFadingFromScene9 = false;
+let scene9FadeStartTime = 0;
+const scene9FadeDelay = 2000;
+const scene9FadeDuration = 3000;
+
+// AUDIO
+let audioClips = [];
+let currentAudio = null;
+let previousScene = -1;
+let notePickSound;
+let fadeOutSound;
+let monkeySound; // New: Sound played on Start
+
+function preload() {
+  imgMonkeyBody = loadImage('assets/monkey-body.png');
+  imgMonkeyBody1 = loadImage('assets/MonkeyBody1.png');
+  imgMonkeyHead = loadImage('assets/monkey-head.png');
+  imgMonkeyLeftArm = loadImage('assets/monkey-left-arm.png');
+  imgMonkeyRightArm = loadImage('assets/monkey-right-arm.png');
+  imgMonkeyRightArm1 = loadImage('assets/MonkeyRightArm1.png');
+  imgMonkeyLeftLeg = loadImage('assets/monkey-left-leg.png');
+  imgMonkeyRightLeg = loadImage('assets/monkey-right-leg.png');
+  imgMonkeyTail = loadImage('assets/monkey-tail.png');
+  imgTricycle = loadImage('assets/trice.png');
+  imgFrontWheel = loadImage('assets/FrontWheel.png');
+  imgRightWheel = loadImage('assets/RightWheel.png');
+  imgLeftWheel = loadImage('assets/LeftWheel.png');
+  imgRod = loadImage('assets/Rod.png');
+  imgBanana = loadImage('assets/banana.png');
+  imgMetal = loadImage('assets/metal.png');
+  imgPedal = loadImage('assets/pedal.png');
+  imgMonkeyFalling = loadImage('assets/monkey-falling.png');
+  imgPortal = loadImage('assets/Portal.png');
+  imgBox = loadImage('assets/Box.png');
+  imgMonkeyHead1 = loadImage('assets/MonkeyHead1.png');
+
+  backgrounds[0] = loadImage('assets/Home.png');
+  backgrounds[1] = loadImage('assets/Home1.png');
+  backgrounds[2] = loadImage('assets/NYUSH.png');
+  backgrounds[3] = loadImage('assets/Quad.png');
+  backgrounds[4] = loadImage('assets/TheBund.png');
+  backgrounds[5] = loadImage('assets/WhiteHouse.png');
+  backgrounds[6] = loadImage('assets/OvalOffice.png');
+  backgrounds[7] = loadImage('assets/Museum.png');
+  backgrounds[8] = loadImage('assets/BananaMuseum.png');
+  backgrounds[9] = loadImage('assets/StorageRoom.png');
+  backgrounds[10] = loadImage('assets/Home1.png');
+
+  imgKeyChain = loadImage('assets/KeyChain.png');
+  imgIceCream = loadImage('assets/IceCream.png');
+  imgQilin = loadImage('assets/Qilin.png');
+  imgPaper = loadImage('assets/Paper.png');
+
+  // Load audio clips
+  audioClips[0] = loadSound('assets/audio/jungle.mp3');      // Scene 0
+  audioClips[1] = loadSound('assets/audio/sports-mode.mp3'); // Scene 1
+  audioClips[2] = loadSound('assets/audio/exhaust.mp3');     // Scene 2
+  audioClips[3] = loadSound('assets/audio/graduation.mp3');  // Scene 3
+  audioClips[4] = loadSound('assets/audio/bund.mp3');        // Scene 4
+  audioClips[5] = loadSound('assets/audio/president.mp3');   // Scene 5
+  audioClips[6] = loadSound('assets/audio/calm.mp3');     // Scene 6
+  audioClips[7] = loadSound('assets/audio/hawaii.mp3');     // Scene 7
+  audioClips[8] = loadSound('assets/audio/heaven.mp3');     // Scene 8
+  audioClips[9] = loadSound('assets/audio/monkey.mp3');      // Scene 9
+  audioClips[10] = loadSound('assets/audio/jungle.mp3');  // Scene 10 (end)
+
+  notePickSound = loadSound('assets/audio/paper.mp3');
+  fadeOutSound = loadSound('assets/audio/jungle.mp3');
+  monkeySound = loadSound('assets/audio/monkey.mp3'); // Played on Start
+
+}
 
 function setup() {
   let canvas = createCanvas(800, 500);
   canvas.parent("p5-canvas-container");
-
-  // Wheel 1
-  wheel1 = new Wheel(200, 280);
-  // Wheel 2
-  wheel2 = new Wheel(160, 300);
-  //wheel 3 outwards
-  wheel3 = new Wheel(270, 300);
+  startBtn = createButton('Start');
+  startBtn.position(540, 450);
+  startBtn.mousePressed(startStory);
+  monkey = new Monkey(width / 2, 380);
+  monkey1 = new Monkey1(300, 390);
+  fallingMonkey = new FallingMonkey(width / 2, -10);
 }
 
 function draw() {
-  background(144, 238, 120);
-  fill(144, 200, 100);
-  rect(-10, 320, 820, 200);
+  if (!isFading && !isFadingFromScene10 && !isFadingFromScene9) {
+    imageMode(CORNER);
+    image(backgrounds[currentScene], 0, 0, width, height);
 
-  // Update and display both wheels
-  drawCharacter(charX, charY);
-}
+    if (currentScene !== 0 && showPortal && currentScene !== 9 && currentScene !== 10) {
+      let floatOffset = sin(frameCount * 0.05) * 8;
+      let portalX = 415;
+      let portalY = 170 + floatOffset;
+      imageMode(CENTER);
+      image(imgPortal, portalX, portalY, imgPortal.width * 1.2, imgPortal.height * 1.3);
+    }
 
-//class Monkey {
-//constructor(x, y) {
-//this.wheel1 = new Wheel(200, 280);
-//
-//}
-//}
+    fill(255);
+    textSize(16);
+    text("Location: " + sceneNames[currentScene], 110, 30);
+  }
 
+  // Scene 0 Part 1
+  if (currentScene === 0 && !isFalling && !isFading) {
+    imageMode(CENTER);
+    let sway = map(sin(frameCount * 0.05), -1, 1, -10, 10);
+    image(imgMonkeyFalling, width / 2 + sway, 80);
+    textAlign(CENTER);
+    fill(255);
+    textSize(32);
+    text("Let him fall!", 420, height - 100);
+  }
 
-function drawCharacter(x, y) {
-  push();
-  translate(x, y);
+  // Scene 0 Part 2
+  if (currentScene === 0 && isFalling && !isFading) {
+    fallingMonkey.update();
+    fallingMonkey.display();
+    if (fallingMonkey.y > 200) {
+      isFading = true;
+      startBtn.hide();
+    }
+  }
 
-  fill(255, 0, 0);
-  circle(0, 0, 5); // origin
+  if (isStarted && !isFading && !isFadingFromScene10 && showMonkey) {
+    if (currentScene === 10) {
+      monkey1.display();
+    } else {
+      monkey.display();
+    }
+  }
 
-  // the monkey character
-  translate(-215, -315);
+  if (isStarted && keyIsPressed) {
+    const rotationStep = 0.1;
+    let leanInput = 0;
+    if (keyCode === LEFT_ARROW) {
+      monkey.move(-40);
+      angleFrontWheel += rotationStep;
+      angleRightWheel += rotationStep;
+      angleLeftWheel += rotationStep;
+      angleMetal += rotationStep;
+      anglePedal += rotationStep;
+      monkey.x -= 2;
+      leanInput = -1;
+      if (monkey.x <= -100) monkey.x = 50;
+      if (currentScene !== 10) {
+        showPortal = true;
+        portalShowTimer = portalShowDuration;
+      }
+    } else if (keyCode === RIGHT_ARROW) {
+      monkey.move(40);
+      angleFrontWheel += rotationStep;
+      angleRightWheel += rotationStep;
+      angleLeftWheel += rotationStep;
+      angleMetal += rotationStep;
+      anglePedal += rotationStep;
+      monkey.x += 2;
+      leanInput = 1;
+      if (monkey.x >= 650 && currentScene < 9) {
+        currentScene = Math.min(backgrounds.length - 1, currentScene + 1);
+        monkey.x = 50;
+      }
+      if (currentScene !== 10) {
+        showPortal = true;
+        portalShowTimer = portalShowDuration;
+      }
+    }
+    bananaTargetLean = leanInput * 0.3;
+  } else {
+    bananaTargetLean = 0;
+  }
 
-  wheel1.update();
-  wheel1.display();
+  // Banana physics
+  let bananaLeanDiff = bananaTargetLean - bananaLeanAngle;
+  bananaLeanVelocity += bananaLeanDiff * 0.1;
+  bananaLeanVelocity *= bananaFriction;
+  bananaLeanAngle += bananaLeanVelocity;
 
-  wheel3.update();
-  wheel3.display();
+  // Portal timer
+  if (portalShowTimer > 0) {
+    portalShowTimer--;
+  } else {
+    showPortal = false;
+  }
 
-  drawBikeSeat(200, 260);
-  drawBikeHandlebars(255, 250);
-  drawBikefloor(215, 300);
+  // Scene 9 transition
+  if (currentScene === 9) {
+    if (!showItemsScreen && boxVisible) {
+      image(imgBox, 300, 200, 200, 200); // Draw big box
+    }
+  }
 
-  wheel2.update();
-  wheel2.display();
+  // Show Items Screen
+  if (showItemsScreen) {
+    fill(0, 180);
+    rect(0, 0, width, height);
+    fill(255);
+    textAlign(CENTER, CENTER);
+    textSize(32);
+    let itemImages = [imgKeyChain, imgIceCream, imgQilin, imgPaper];
+    let labels = ["Keychain", "Ice Cream", "Qilin", "Note"];
+    text("Choose Correctly", 500, 280);
+    textAlign(CENTER);
+    textSize(19);
+    fill(255);
+    for (let i = 0; i < itemSlotPositions.length; i++) {
+      let pos = itemSlotPositions[i];
+      let size = 500;
+      let imgX = pos.x;
+      let imgY = pos.y + 1;
+      push();
+      if (i !== pickableItemIndex) tint(150);
+      imageMode(CENTER);
+      image(itemImages[i], imgX, imgY, size, size);
+      noTint();
+      text(labels[i], imgX, imgY + size / 2 + 20 - 200);
+      pop();
+    }
+  }
 
-  drawRod();
-  drawMonkey();
-  pop();
+  // Handle fade from Scene 9 to Scene 10
+  if (isFadingFromScene9 && currentScene === 9) {
+    let elapsed = millis() - scene9FadeStartTime;
+    if (elapsed < scene9FadeDelay) {
+      imageMode(CORNER);
+      image(backgrounds[currentScene], 0, 0, width, height);
+    } else {
+      let alpha = map(elapsed - scene9FadeDelay, 0, scene9FadeDuration, 0, 255);
+      alpha = constrain(alpha, 0, 255);
+
+      imageMode(CORNER);
+      image(backgrounds[currentScene], 0, 0, width, height);
+      fill(0, alpha);
+      noStroke();
+      rect(0, 0, width, height);
+
+      if (alpha >= 255) {
+        currentScene = 10;
+        isFadingFromScene9 = false;
+        scene10StartTime = millis(); // Start Scene 10's fade timer
+        showPortal = false;
+
+        // Play end scene music (once)
+        if (audioClips[10]) {
+          if (currentAudio && currentAudio.isPlaying()) currentAudio.stop();
+          currentAudio = audioClips[10];
+          currentAudio.play();
+        }
+      }
+    }
+  }
+
+  // Fade transition after Scene 0
+  if (isFading) {
+    countAfterFall++;
+    let alpha = map(countAfterFall, 0, 240, 0, 255);
+    alpha = constrain(alpha, 0, 255);
+    fill(0, alpha);
+    noStroke();
+    rect(0, 0, width, height);
+    if (countAfterFall > 60) {
+      currentScene = 1;
+      isFading = false;
+      isStarted = true;
+      countAfterFall = 0;
+      monkey.x = width / 2;
+      monkey.y = 380;
+    }
+  }
+
+  // Fade to black after Scene 10
+  if (currentScene === 10 && !isFadingFromScene10 && scene10StartTime > 0) {
+    if (millis() - scene10StartTime > scene10FadeDelay) {
+      isFadingFromScene10 = true;
+    }
+  }
+
+  if (isFadingFromScene10) {
+    let elapsed = millis() - (scene10StartTime + scene10FadeDelay);
+    let alpha = map(elapsed, 0, scene10FadeDuration, 0, 255);
+    alpha = constrain(alpha, 0, 255);
+    fill(0, alpha);
+    noStroke();
+    rect(0, 0, width, height);
+    fill(255);
+    text("Mission Complete", 400, 100);
+    text("Special Thank You to", 400, 140);
+    text("Alex & Moon", 400, 160);
+  }
+
+  // Auto-play scene audio
+  if (currentScene !== previousScene) {
+    previousScene = currentScene;
+
+    if (currentAudio && currentAudio.isPlaying()) {
+      currentAudio.stop();
+    }
+
+    if (audioClips[currentScene]) {
+      currentAudio = audioClips[currentScene];
+      currentAudio.play();
+      currentAudio.setVolume(0.5);
+    }
+  }
 }
 
 function keyPressed() {
-  const rotationStep = 0.1; // radians per key press
-  if (keyCode === LEFT_ARROW) {
-    wheel1.angle -= rotationStep;
-    wheel2.angle -= rotationStep;
-    wheel3.angle -= rotationStep;
-    charX -= 2;
-  } else if (keyCode === RIGHT_ARROW) {
-    wheel1.angle += rotationStep;
-    wheel2.angle += rotationStep;
-    wheel3.angle += rotationStep;
-    charX += 2;
+  if (keyCode === RIGHT_ARROW && currentScene === 0 && !isFalling) {
+    startStory();
   }
 }
 
-// Wheel class
-class Wheel {
+function startStory() {
+  if (currentScene === 0 && !isFalling) {
+    isFalling = true;
+    // Play monkey sound on Start
+    if (monkeySound && !monkeySound.isPlaying()) {
+      monkeySound.play();
+    }
+  }
+}
+
+function mousePressed() {
+  if (currentScene === 9 && !showItemsScreen &&
+    mouseX > 300 && mouseX < 500 &&
+    mouseY > 200 && mouseY < 350) {
+    showItemsScreen = true;
+    return;
+  }
+
+  if (showItemsScreen && !selectedItem) {
+    for (let i = 0; i < itemSlotPositions.length; i++) {
+      let pos = itemSlotPositions[i];
+      let imgX = pos.x;
+      let imgY = pos.y;
+      if (
+        mouseX > imgX - itemWidth / 2 &&
+        mouseX < imgX + itemWidth / 2 &&
+        mouseY > imgY - itemHeight / 2 &&
+        mouseY < imgY + itemHeight / 2
+      ) {
+        if (i === pickableItemIndex) {
+          selectedItem = i + 1;
+          alert("You picked: Note");
+          notePickSound.play();
+          showItemsScreen = false;
+          notePicked = true;
+          boxVisible = false;
+          scene9FadeStartTime = millis();
+          isFadingFromScene9 = true;
+
+          // Stop current audio and play fade out
+          if (currentAudio && currentAudio.isPlaying()) currentAudio.stop();
+          fadeOutSound.play();
+        } else {
+          alert("You cannot choose that.");
+        }
+        break;
+      }
+    }
+  }
+}
+
+class Monkey {
   constructor(x, y) {
     this.x = x;
     this.y = y;
-    this.angle = 0;
+    this.direction = 1;
   }
-
-  update() {
-    // You can add easing or animation here later
+  move(xStep) {
+    this.x += xStep;
+    this.direction = xStep < 0 ? -1 : 1;
   }
-
   display() {
     push();
     translate(this.x, this.y);
-    rotate(this.angle);
+    scale(this.direction, 1);
 
-    // Draw wheel
-    strokeWeight(3);
-    fill(144, 238, 120);
-    ellipse(0, 0, 60, 60);
+    let angleLeftLeg = map(sin(frameCount * 0.02), -1, 1, radians(20), radians(30));
+    this.drawLeftLeg(25, 12, angleLeftLeg);
 
-    fill(0);
-    // Spokes
-    for (let i = 0; i < 16; i++) {
-      push();
-      rotate((TWO_PI / 16) * i);
-      line(0, 0, 0, 30);
-      pop();
-    }
+    let angleLeftArm = map(sin(frameCount * 0.05), -1, 1, radians(0), radians(20));
+    this.drawLeftArm(20, -15, angleLeftArm);
 
-    // Center hub
-    fill(40);
-    ellipse(0, 0, 20, 20);
+    this.drawLeftWheel(-10, 70, angleLeftWheel);
+    this.drawFrontWheel(105, 90, angleFrontWheel);
+    this.drawRightWheel(-50, 75, angleRightWheel);
+    this.drawTricycle(60, 40);
+    this.drawMetal(10, 80, angleLeftWheel);
+    this.drawPedal(10, 80, angleLeftWheel);
+
+    let angleRightLeg = map(sin(frameCount * 0.02), -1, 1, radians(40), radians(70));
+    this.drawRightLeg(-10, 28, angleRightLeg);
+
+    let angleTail = map(sin(frameCount * 0.05), -1, 1, radians(40), radians(70));
+    this.drawTail(-30, 10, angleTail);
+
+    this.drawBody(5, 0, 0);
+
+    let angleHead = sin(frameCount * 0.08) * Math.PI / 28;
+    this.drawHead(0, -32, angleHead);
+
+    let angleRightArm = map(sin(frameCount * 0.05), -1, 1, radians(60), radians(100));
+    this.drawRightArm(-23, -12, angleRightArm);
+
+    this.drawRod(60, 40);
+    this.drawBanana(205, -160, bananaLeanAngle);
+
+    pop();
+  }
+
+  drawHead(x, y, angle) {
+    push();
+    translate(x, y);
+    rotate(angle);
+    imageMode(CENTER);
+    image(imgMonkeyHead, 0, -25);
+    pop();
+  }
+  drawBody(x, y, angle) {
+    push();
+    translate(x, y);
+    rotate(angle);
+    imageMode(CENTER);
+    image(imgMonkeyBody, -10, -10);
+    pop();
+  }
+  drawLeftArm(x, y, angle) {
+    push();
+    translate(x, y);
+    rotate(angle);
+    imageMode(CENTER);
+    image(imgMonkeyLeftArm, 35, -2);
+    pop();
+  }
+  drawRightArm(x, y, angle) {
+    push();
+    translate(x, y);
+    rotate(angle);
+    imageMode(CENTER);
+    image(imgMonkeyRightArm, 32, 3);
+    pop();
+  }
+  drawLeftLeg(x, y, angle) {
+    push();
+    translate(x, y);
+    rotate(angle);
+    imageMode(CENTER);
+    image(imgMonkeyLeftLeg, 30, -3);
+    pop();
+  }
+  drawRightLeg(x, y, angle) {
+    push();
+    translate(x, y);
+    rotate(angle);
+    imageMode(CENTER);
+    image(imgMonkeyRightLeg, 10, 0);
+    pop();
+  }
+  drawTail(x, y, angle) {
+    push();
+    translate(x, y);
+    rotate(angle);
+    imageMode(CENTER);
+    image(imgMonkeyTail, -47, 0);
+    pop();
+  }
+  drawTricycle(x, y, angle) {
+    push();
+    translate(x, y);
+    rotate(angle);
+    imageMode(CENTER);
+    image(imgTricycle, -20, 0);
+    pop();
+  }
+  drawFrontWheel(x, y, angle) {
+    push();
+    translate(x, y);
+    rotate(angle);
+    imageMode(CENTER);
+    image(imgFrontWheel, -83, 0);
+    pop();
+  }
+  drawRightWheel(x, y, angle) {
+    push();
+    translate(x, y);
+    rotate(angle);
+    imageMode(CENTER);
+    image(imgRightWheel, 25, 0);
+    pop();
+  }
+  drawLeftWheel(x, y, angle) {
+    push();
+    translate(x, y);
+    rotate(angle);
+    imageMode(CENTER);
+    image(imgLeftWheel, 1, 0);
+    pop();
+  }
+  drawMetal(x, y, angle) {
+    push();
+    translate(x, y);
+    rotate(angle);
+    imageMode(CENTER);
+    image(imgMetal, 3, 5);
+    pop();
+  }
+  drawPedal(x, y, angle) {
+    push();
+    translate(x, y);
+    rotate(angle);
+    imageMode(CENTER);
+    image(imgPedal, -3, 8);
+    pop();
+  }
+  drawRod(x, y, angle) {
+    push();
+    translate(x, y);
+    rotate(angle);
+    imageMode(CENTER);
+    image(imgRod, -20, 0);
+    pop();
+  }
+  drawBanana(x, y, angle) {
+    push();
+    translate(x, y);
+    rotate(angle);
+    imageMode(CENTER);
+    image(imgBanana, -150, 180);
     pop();
   }
 }
 
-// Function to draw a bike seat
-function drawBikeSeat(x, y) {
-  push();
-  stroke(50);
-  strokeWeight(3);
-  fill(0); // Purple-ish color for the seat
-
-  // Top part of the seat (a trapezoid shape)
-  beginShape();
-  vertex(x - 30, y); // Left
-  vertex(x + 30, y); // Right
-  vertex(x + 20, y - 10); // Top-right
-  vertex(x - 20, y - 10); // Top-left
-  endShape(CLOSE);
-
-  // Seat post going down
-  line(x, y, x + 20, y + 40);
-
-  pop();
-}
-function drawBikefloor(x, y) {
-  push();
-  stroke(5);
-  strokeWeight(7);
-  fill(0);
-
-  beginShape();
-  vertex(x - 50, y); // Left
-  vertex(x + 50, y); // Right
-  vertex(x + 40, y - 10); // Top-right
-  vertex(x - 17, y - 20); // Top-left
-  endShape(CLOSE);
-
-  pop();
+class FallingMonkey {
+  constructor(x, y) {
+    this.x = x;
+    this.y = y;
+    this.vy = 0;
+  }
+  update() {
+    this.vy += 0.01;
+    this.y += this.vy;
+  }
+  display() {
+    imageMode(CENTER);
+    image(imgMonkeyFalling, this.x, this.y);
+  }
 }
 
-function drawBikeHandlebars(x, y) {
-  push();
-  stroke(4);
-  strokeWeight(3);
-  fill(0);
-  beginShape();
-  vertex(x - 20, y); // Left
-  vertex(x + 20, y); // Right
-  vertex(x + 17, y - 5); // Top-right
-  vertex(x - 17, y - 5); // Top-left
-  endShape(CLOSE);
+class Monkey1 {
+  constructor(x, y) {
+    this.x = x;
+    this.y = y;
+    this.direction = 1;
+  }
+  move(xStep) {
+    this.x += xStep;
+    this.direction = xStep < 0 ? -1 : 1;
+  }
+  display() {
+    push();
+    translate(this.x, this.y);
+    scale(this.direction, 1);
 
-  // Seat post going down
-  line(x, y, x, y + 43);
-  pop();
-}
-function drawRod(x, y) {
-  strokeWeight(3);
-  line(255, 250, 350, 180);
-  textSize(54);
-  text("🍌", 335, 230);
-}
+    let angleLeftLeg = map(sin(frameCount * 0.02), -1, 1, radians(90), radians(80));
+    this.drawLeftLeg(25, 12, angleLeftLeg);
 
-function drawMonkey(x, y) {
-  fill(139, 69, 42);
-  quad(208, 256, 227, 258, 238, 289, 223, 288); //leg behind the body
-  quad(218, 219, 221, 233, 256, 245, 266, 238); //arm behind the body
-  square(182, 170, 41); //head
-  rect(180, 210, 45, 45); //body
+    let angleLeftArm = map(sin(frameCount * 0.05), -1, 1, radians(0), radians(20));
+    this.drawLeftArm(20, -15, angleLeftArm);
 
-  quad(183, 259, 195, 256, 216, 288, 197, 295); //leg
+    let angleRightLeg = map(sin(frameCount * 0.02), -1, 1, radians(95), radians(110));
+    this.drawRightLeg(-10, 33, angleRightLeg);
 
-  quad(180, 221, 176, 235, 231, 252, 235, 244); // firstarm
+    let angleTail = map(sin(frameCount * 0.05), -1, 1, radians(40), radians(70));
+    this.drawTail(-30, 10, angleTail);
+
+    let angleRightArm1 = map(sin(frameCount * 0.05), -1, 1, radians(-30), radians(-10));
+    this.drawRightArm1(-25, -5, angleRightArm1);
+
+    this.drawBody1(15, -50, 0);
+
+    let angleHead = sin(frameCount * 0.08) * Math.PI / 28;
+    this.drawHead1(0, -32, angleHead);
+
+    pop();
+  }
+
+  drawHead1(x, y, angle) {
+    push();
+    translate(x, y);
+    rotate(angle);
+    imageMode(CENTER);
+    image(imgMonkeyHead1, 0, -25);
+    pop();
+  }
+
+  drawBody1(x, y, angle) {
+    push();
+    translate(x, y);
+    rotate(angle);
+    imageMode(CENTER);
+    image(imgMonkeyBody1, -10, -10);
+    pop();
+  }
+
+  drawRightArm1(x, y, angle) {
+    push();
+    translate(x, y);
+    rotate(angle);
+    imageMode(CENTER);
+    image(imgMonkeyRightArm1, 35, -55);
+    pop();
+  }
+
+  drawLeftArm(x, y, angle) {
+    push();
+    translate(x, y);
+    rotate(angle);
+    imageMode(CENTER);
+    image(imgMonkeyLeftArm, 35, -2);
+    pop();
+  }
+
+  drawLeftLeg(x, y, angle) {
+    push();
+    translate(x, y);
+    rotate(angle);
+    imageMode(CENTER);
+    image(imgMonkeyLeftLeg, 30, -3);
+    pop();
+  }
+
+  drawRightLeg(x, y, angle) {
+    push();
+    translate(x, y);
+    rotate(angle);
+    imageMode(CENTER);
+    image(imgMonkeyRightLeg, 10, 0);
+    pop();
+  }
+
+  drawTail(x, y, angle) {
+    push();
+    translate(x, y);
+    rotate(angle);
+    imageMode(CENTER);
+    image(imgMonkeyTail, -47, 0);
+    pop();
+  }
 }
