@@ -104,7 +104,7 @@ function preload() {
   backgrounds[9] = loadImage('assets/StorageRoom.png');
   backgrounds[10] = loadImage('assets/Home1.png');
 
-  imgKeyChain = loadImage('assets/KeyChain.png');
+  imgKeyChain = loadImage('assets/Keychain.png');
   imgIceCream = loadImage('assets/IceCream.png');
   imgQilin = loadImage('assets/Qilin.png');
   imgPaper = loadImage('assets/Paper.png');
@@ -132,7 +132,7 @@ function setup() {
   let canvas = createCanvas(800, 500);
   canvas.parent("p5-canvas-container");
   startBtn = createButton('Start');
-  startBtn.position(540, 450);
+  startBtn.position(520, 450);
   startBtn.mousePressed(startStory);
   monkey = new Monkey(width / 2, 380);
   monkey1 = new Monkey1(300, 390);
