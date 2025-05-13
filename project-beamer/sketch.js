@@ -132,7 +132,7 @@ function setup() {
   let canvas = createCanvas(800, 500);
   canvas.parent("p5-canvas-container");
   startBtn = createButton('Start');
-  startBtn.position(520, 450);
+  startBtn.position(720, 450);
   startBtn.mousePressed(startStory);
   monkey = new Monkey(width / 2, 380);
   monkey1 = new Monkey1(300, 390);
